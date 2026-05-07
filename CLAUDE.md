@@ -6,6 +6,8 @@ Pet-проект для подготовки к позициям quant researche
 Бэкграунд владельца: ML extraction (lease_int, government_invoice), C++ только базовый, микроструктуру учу с нуля. Этот проект — учебная база, не претендует на реальную торговлю.
 
 ## Текущий этап
+**Stage 2a — book reconstruction + первые фичи (готово).** `book.py` восстанавливает top-N книгу из snapshot+delta. `analyze.py` строит features DataFrame и графики (`plots/`). На 10 мин данных BTCUSDT уже видно монотонную предсказательную силу top-of-book imbalance на горизонте ~1.6 сек.
+
 **Stage 1 — collector.** Bybit V5 public linear stream (`stream.bybit.com/v5/public/linear`): `orderbook.50.{symbol}` (snapshot+delta) + `publicTrade.{symbol}` для BTCUSDT/ETHUSDT/SOLUSDT.
 
 Не Binance Futures: с этого IP `fstream.binance.com` aggTrade молча режется (geo-фильтр), depth идёт, trades нет. На сервере с другим IP можно вернуться через `QR_WS_URL`.

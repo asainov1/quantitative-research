@@ -63,9 +63,27 @@ Schema:
 
 Book даёт **дельты**, не партишн-снапшоты. Для top-N в любой момент времени нужно реконструировать книгу: применять delta-события к последнему snapshot. Это будет в Stage 2.
 
+## Stage 2 — book reconstruction + первая фича (готово)
+
+`book.py` — реконструкция книги из snapshot+delta событий. На каждом событии можно получить top-N состояние (`BookState`) с производными:
+- `mid` — `(best_bid + best_ask) / 2`
+- `microprice` — объёмно-взвешенная справедливая середина
+- `spread`, `imbalance` — для top-of-book
+
+`analyze.py BTCUSDT` — прогон по собранным данным: replay → DataFrame с фичами, summary stats, два графика в `plots/`.
+
+### Первый результат: imbalance предсказывает движение цены
+
+10 минут BTCUSDT, 18.7к book-событий. Делим текущий imbalance на 10 квантильных бакетов, смотрим средний microprice change через следующие 50 событий (~1.6 секунды):
+
+![imbalance predict](plots/btcusdt_imbalance_predict.png)
+
+Почти монотонная связь: bid-heavy (+1) → +$1.85 ход, ask-heavy (−1) → −$2.5 ход. Это рабочая микроструктурная фича на сырых данных без всякого ML.
+
 ## Roadmap
 
 - [x] Stage 1: collector
-- [ ] Stage 2: book reconstruction + features — order flow imbalance, microprice, queue depth, Lee-Ready trade signs
+- [x] Stage 2a: book reconstruction + microprice + imbalance (top-of-book)
+- [ ] Stage 2b: больше фич — multi-level OFI, depth, trade flow imbalance, обновляемые на trade events
 - [ ] Stage 3: GBDT (LightGBM) предикт return @ 100ms / 1s / 10s, walk-forward CV, purged k-fold
 - [ ] Stage 4: event-driven backtest с моделью очереди, маркауты (PnL @ 1с/10с/1мин), maker/taker fee + slippage

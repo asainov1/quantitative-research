@@ -1,10 +1,12 @@
 [project]
 name = "qr"
 version = "0.1.0"
-description = "Quant research: Binance Futures L2 collector + microstructure features + backtest"
+description = "Quant research: Bybit linear L2 collector, book reconstruction, microstructure features, backtest"
 requires-python = ">=3.11"
 dependencies = [
+    "matplotlib>=3.10.9",
     "orjson>=3.11.9",
+    "pandas>=3.0.2",
     "pyarrow>=24.0.0",
     "python-dotenv>=1.2.2",
     "websockets>=16.0",
