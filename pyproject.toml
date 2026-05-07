@@ -9,5 +9,6 @@ dependencies = [
     "pandas>=3.0.2",
     "pyarrow>=24.0.0",
     "python-dotenv>=1.2.2",
+    "scipy>=1.17.1",
     "websockets>=16.0",
 ]

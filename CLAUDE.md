@@ -6,7 +6,9 @@ Pet-проект для подготовки к позициям quant researche
 Бэкграунд владельца: ML extraction (lease_int, government_invoice), C++ только базовый, микроструктуру учу с нуля. Этот проект — учебная база, не претендует на реальную торговлю.
 
 ## Текущий этап
-**Stage 2a — book reconstruction + первые фичи (готово).** `book.py` восстанавливает top-N книгу из snapshot+delta. `analyze.py` строит features DataFrame и графики (`plots/`). На 10 мин данных BTCUSDT уже видно монотонную предсказательную силу top-of-book imbalance на горизонте ~1.6 сек.
+**Stage 2b — расширенный feature set (готово).** `features.py` содержит 13 фич: top-of-book imbalance, multi-level (top-5) imbalance + OFI (Cont-Kukanov-Stoikov), trade flow по окнам 200мс/1с/5с, realized volatility (100/500/2000 events), spread regime indicators. `evaluate.py` ранжирует по Spearman vs forward microprice change на 4 горизонтах. На 10 мин BTC: OFI лидирует на h=10, imbalance_top на h=50-200, spread_bps/rv_2000 на h=1000.
+
+**Stage 2a — book reconstruction (готово).** `book.py` — top-N книга из snapshot+delta, `analyze.py` — overview-плоты.
 
 **Stage 1 — collector.** Bybit V5 public linear stream (`stream.bybit.com/v5/public/linear`): `orderbook.50.{symbol}` (snapshot+delta) + `publicTrade.{symbol}` для BTCUSDT/ETHUSDT/SOLUSDT.
 

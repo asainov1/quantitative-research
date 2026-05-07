@@ -80,10 +80,33 @@ Book даёт **дельты**, не партишн-снапшоты. Для top
 
 Почти монотонная связь: bid-heavy (+1) → +$1.85 ход, ask-heavy (−1) → −$2.5 ход. Это рабочая микроструктурная фича на сырых данных без всякого ML.
 
+## Stage 2b — расширенный feature set + ranking (готово)
+
+`features.py` — 13 фич на текущий момент:
+- top-of-book: `imbalance_top`, `spread`, `spread_bps`, `spread_in_ticks`, `spread_wide`
+- multi-level (top-5): `imbalance_top5`, `depth_top5`, `ofi_top5` (Cont-Kukanov-Stoikov order flow imbalance)
+- trade flow: signed-volume rolling sums по окнам 200мс / 1с / 5с
+- realized volatility: rolling по окнам 100 / 500 / 2000 ивентов
+
+`evaluate.py` — Spearman корреляция каждой фичи с forward microprice change на горизонтах 10 / 50 / 200 / 1000 book-ивентов + bucket-плот для всех в одной сетке.
+
+### Ranking (10 мин BTCUSDT, 18.7к book events)
+
+| Горизонт | Лучшая фича | Spearman ρ |
+|---|---|---|
+| 10 ивентов (~0.3с) | `ofi_top5` | +0.117 |
+| 50 ивентов (~1.5с) | `imbalance_top` | +0.226 |
+| 200 ивентов (~6с) | `imbalance_top5` | +0.283 |
+| 1000 ивентов (~30с) | `spread_bps` (+) / `rv_2000` (−) | +0.366 / −0.264 |
+
+Канонический результат: OFI рулит на тиковых горизонтах, top-of-book imbalance — на 1-6 секунд, а на 30+ секунд микроструктура уступает место spread/volatility режимам.
+
+![feature grid](plots/btcusdt_feature_grid.png)
+
 ## Roadmap
 
 - [x] Stage 1: collector
 - [x] Stage 2a: book reconstruction + microprice + imbalance (top-of-book)
-- [ ] Stage 2b: больше фич — multi-level OFI, depth, trade flow imbalance, обновляемые на trade events
-- [ ] Stage 3: GBDT (LightGBM) предикт return @ 100ms / 1s / 10s, walk-forward CV, purged k-fold
+- [x] Stage 2b: multi-level features + Spearman ranking
+- [ ] Stage 3: GBDT (LightGBM) предикт return @ horizons 50/200, walk-forward CV, purged k-fold
 - [ ] Stage 4: event-driven backtest с моделью очереди, маркауты (PnL @ 1с/10с/1мин), maker/taker fee + slippage
