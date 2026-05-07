@@ -6,7 +6,9 @@ Pet-проект для подготовки к позициям quant researche
 Бэкграунд владельца: ML extraction (lease_int, government_invoice), C++ только базовый, микроструктуру учу с нуля. Этот проект — учебная база, не претендует на реальную торговлю.
 
 ## Текущий этап
-**Stage 2b — расширенный feature set (готово).** `features.py` содержит 13 фич: top-of-book imbalance, multi-level (top-5) imbalance + OFI (Cont-Kukanov-Stoikov), trade flow по окнам 200мс/1с/5с, realized volatility (100/500/2000 events), spread regime indicators. `evaluate.py` ранжирует по Spearman vs forward microprice change на 4 горизонтах. На 10 мин BTC: OFI лидирует на h=10, imbalance_top на h=50-200, spread_bps/rv_2000 на h=1000.
+**Stage 3 — LightGBM walk-forward CV (готово).** `model.py` обучает LGB regression на 14 фичах с таргетом fwd_50 (microprice change через 50 ивентов ≈ 1.5с). Walk-forward CV с эмбарго=горизонту, бенчмарк против `imbalance_top` solo. На 10 мин BTC: OOS mean IC = +0.201 (LGB) vs +0.187 (imbalance) — сигнал есть, edge маленький из-за объёма данных. Feature importance подтверждает теорию: ofi_top5 последняя на h=50 (она нужна на h=10), imbalance_top топ-1.
+
+**Stage 2b — расширенный feature set (готово).** `features.py` содержит 13 фич: top-of-book imbalance, multi-level (top-5) imbalance + OFI (Cont-Kukanov-Stoikov), trade flow по окнам 200мс/1с/5с, realized volatility (100/500/2000 events), spread regime indicators. `evaluate.py` ранжирует по Spearman vs forward microprice change на 4 горизонтах.
 
 **Stage 2a — book reconstruction (готово).** `book.py` — top-N книга из snapshot+delta, `analyze.py` — overview-плоты.
 

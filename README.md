@@ -103,10 +103,40 @@ Book даёт **дельты**, не партишн-снапшоты. Для top
 
 ![feature grid](plots/btcusdt_feature_grid.png)
 
+## Stage 3 — LightGBM с walk-forward CV (готово)
+
+`model.py` — LightGBM regression на 14 фичах из `features.py`, таргет `fwd_50` (microprice change через 50 book events ≈ 1.5с).
+
+**Walk-forward chronological CV** с эмбарго равным горизонту: train ⊂ [0, T₁ − H), test ⊂ [T₁ + H, T₂). Train-сет растёт монотонно с фолдом. Эмбарго закрывает утечку через перекрывающиеся target-окна (Lopez de Prado).
+
+**Бенчмарк:** в каждом фолде сравниваем модель не только с naive zero, но и с предсказанием по одной фиче `imbalance_top` — чтобы видеть реальный edge от мульти-фича модели.
+
+### Результаты (10 мин BTCUSDT, 18.7к ивентов, 4 фолда по 3.6к)
+
+| Fold | Train | Test | IC LightGBM | IC imbalance_top | best_iter |
+|---|---|---|---|---|---|
+| 1 | 3,584 | 3,584 | +0.274 | +0.165 | 69 |
+| 2 | 7,218 | 3,584 | +0.300 | +0.313 | 8 |
+| 3 | 10,852 | 3,584 | +0.080 | +0.060 | 2 |
+| 4 | 14,486 | 3,584 | +0.150 | +0.210 | 15 |
+| **mean** | | | **+0.201** | **+0.187** | |
+
+![ic per fold](plots/btcusdt_ic_per_fold.png)
+
+**Что видно:**
+- OOS IC ≈ +0.2 на 1.5-секундном горизонте — сигнал реальный (random = 0).
+- LightGBM едва обходит одну фичу `imbalance_top` (+0.20 vs +0.19) — на 18к ивентов мульти-фича модель не успевает выучить нелинейные эффекты. Нужно 100к+ для нормального edge.
+- Огромная вариация по фолдам (0.08 → 0.30) подтверждает «мало данных».
+
+![feature importance](plots/btcusdt_feature_importance.png)
+
+**Feature importance:** `imbalance_top` лидирует, дальше `trade_flow_5000ms`, `rv_500`, `rv_100`, `imbalance_top5`, `spread_bps`. `ofi_top5` — последняя, хотя в Spearman ranking она была лучшей на h=10. Это подтверждает: OFI работает на тиковых горизонтах, для h=50 ей нечего дать.
+
 ## Roadmap
 
 - [x] Stage 1: collector
 - [x] Stage 2a: book reconstruction + microprice + imbalance (top-of-book)
 - [x] Stage 2b: multi-level features + Spearman ranking
-- [ ] Stage 3: GBDT (LightGBM) предикт return @ horizons 50/200, walk-forward CV, purged k-fold
+- [x] Stage 3: LightGBM walk-forward CV, OOS IC ≈ +0.20 на h=50
 - [ ] Stage 4: event-driven backtest с моделью очереди, маркауты (PnL @ 1с/10с/1мин), maker/taker fee + slippage
+- [ ] Долгий сбор на сервере (1+ день) → пере-обучение, должно стабилизировать walk-forward результаты
