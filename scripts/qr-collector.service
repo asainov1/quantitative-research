@@ -1,0 +1,21 @@
+[Unit]
+Description=qr Binance Futures L2 collector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=REPLACE_USER
+WorkingDirectory=/home/REPLACE_USER/qr
+EnvironmentFile=/home/REPLACE_USER/qr/.env
+ExecStart=/home/REPLACE_USER/.local/bin/uv run python collector.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+# Дополнительная защита
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

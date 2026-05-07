@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Env / secrets
+.env
+
+# Collected data — never commit
+data/
+*.parquet
+*.parquet.gz
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Notebooks scratch
+.ipynb_checkpoints/
