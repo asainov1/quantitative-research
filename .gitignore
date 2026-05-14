@@ -24,3 +24,7 @@ data/
 
 # Notebooks scratch
 .ipynb_checkpoints/
+
+# C++ build artifacts and exported data
+cpp/build/
+cpp/events_*.psv
